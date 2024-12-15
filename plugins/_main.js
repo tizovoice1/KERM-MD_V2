@@ -406,7 +406,7 @@ cmd({
       return _0x4e4351.reply("*_Failed To Create Url bro!_*");
     }
     try {
-      fs.unlink(_0x349452);
+      fs.unlinkSync(_0x349452);
     } catch {}
     await _0x4e4351.send(util.format(_0x536aa6), {}, "asta", _0x680da4);
   } catch (_0x2ee8cc) {
