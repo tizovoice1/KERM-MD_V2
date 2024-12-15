@@ -1,50 +1,69 @@
-const { smd, prefix, Config } = require('../lib');
-const fetch = require('node-fetch');
+const { smd, prefix, Config } = require('../lib'); // Import necessary configurations and utilities
+const fetch = require('node-fetch'); // Import fetch for HTTP requests
 
+// Function to generate a text-based logo using various online services
 async function textToLogoGenerator(message, textProUrl, text1, text2 = "ser", serviceType = "textpro", retryOnFail = true) {
-  let mumakerResponse = {};
-  let apiResponse = {};
+  let mumakerResponse = {}; // Response object for Mumaker
+  let apiResponse = {}; // Response object for fallback API
   let url = /1|ephoto|ephoto360/gi.test(serviceType) ? `https://ephoto360.com/${textProUrl}.html` :
            /2|potoxy|photooxy/gi.test(serviceType) ? `https://photooxy.com/${textProUrl}.html` :
            /3|enphoto|en360/gi.test(serviceType) ? `https://en.ephoto360.com/${textProUrl}.html` :
-           `https://textpro.me/${textProUrl}.html`;
+           `https://textpro.me/${textProUrl}.html`; // Determine service URL based on serviceType
 
   try {
-    const { textpro } = require('mumaker');
+    // Try using Mumaker library for text-to-logo generation
+    const { textpro } = require('mumaker'); // Import Mumaker module
     if (text1) {
-      mumakerResponse = await textpro(url, [text1, text2]);
+      mumakerResponse = await textpro(url, [text1, text2]); // Generate logo with Mumaker
     }
 
+    // Prepare message context and send generated image
     let captionContext = {} || { ...(await message.bot.contextInfo('Text to Logo', `Hello ${message.senderName}`)) };
     return await message.bot.sendMessage(message.jid, {
-      image: { url: mumakerResponse.image },
-      caption: Config.caption,
+      image: { url: mumakerResponse.image }, // Send generated image
+      caption: Config.caption || "Here is your generated logo!", // Default caption if not set
       contextInfo: captionContext
     }, { messageId: message.bot.messageId() });
-  } catch (error) {
-    try {
-      let apiUrl = `${global.api_smd}/api/maker?text1=${text1}&text2=${text2}&url=${url}`;
-      apiResponse = await fetchJson(apiUrl);
 
-      if ((!apiResponse || !apiResponse.status || !apiResponse.img) && retryOnFail) {
-        return message.error(`${error}\nWebinfo: ${apiResponse.img || apiResponse}\n\nfileName: textToLogoGenerator->s.js`, error);
+  } catch (error) {
+    // If Mumaker fails, try fetching from fallback API
+    try {
+      let apiUrl = `${global.api_smd || "https://default-api.com"}/api/maker?text1=${encodeURIComponent(text1)}&text2=${encodeURIComponent(text2)}&url=${encodeURIComponent(url)}`;
+      apiResponse = await fetchJson(apiUrl); // Fetch from fallback API
+
+      // Handle API response and send image
+      if (!apiResponse || !apiResponse.status || !apiResponse.img) {
+        if (retryOnFail) {
+          return message.error(`Mumaker Error: ${error}\nAPI Error: ${apiResponse}\n\nfileName: textToLogoGenerator`, error);
+        }
       }
 
-      await message.bot.sendMessage(message.jid, { image: { url: apiResponse.img } }, { messageId: message.bot.messageId() });
+      await message.bot.sendMessage(message.jid, {
+        image: { url: apiResponse.img }, // Send image from API response
+      }, { messageId: message.bot.messageId() });
+
     } catch (err) {
-      let imageUrl = mumakerResponse && mumakerResponse.image ? mumakerResponse.image :
-                     apiResponse && apiResponse.img ? apiResponse.img : false;
+      // Handle complete failure
+      let imageUrl = mumakerResponse?.image || apiResponse?.img || false; // Determine if any image was generated
 
       if (retryOnFail) {
-        message.error(`${error}\n\nAPI Error: ${err}\n\nfileName: textToLogoGenerator->s.js`, error, (imageUrl ? `Here we go\n\n${imageUrl}` : "Error, Request Denied!").trim());
+        message.error(`Error: ${error}\n\nAPI Error: ${err}\n\nfileName: textToLogoGenerator`, error, 
+          imageUrl ? `Generated image: ${imageUrl}` : "Failed to generate logo.");
       }
     }
   }
 }
 
+// Function to fetch JSON from a URL
 async function fetchJson(url) {
-  const response = await fetch(url);
-  return await response.json();
+  try {
+    const response = await fetch(url); // Perform HTTP request
+    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`); // Check for HTTP errors
+    return await response.json(); // Parse and return JSON
+  } catch (error) {
+    console.error(`Failed to fetch JSON: ${error.message}`); // Log error for debugging
+    throw error;
+  }
 }
 
 smd({
