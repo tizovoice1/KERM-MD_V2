@@ -1715,12 +1715,17 @@ smd(
   },
   async (_0x47f7e9, _0x4bf96c) => {
     try {
+      // Vérification si c'est un groupe
       if (!_0x47f7e9.isGroup) {
-        return _0x47f7e9.reply(tlang().group);
+        return _0x47f7e9.reply(tlang ? tlang().group : "This command can only be used in a group.");
       }
+
+      // Vérification des permissions de l'utilisateur
       if (!_0x47f7e9.isAdmin && !_0x47f7e9.isCreator) {
-        return _0x47f7e9.reply(tlang().admin);
+        return _0x47f7e9.reply(tlang ? tlang().admin : "You must be an admin or creator to use this command.");
       }
+
+      // Vérification de la base de données pour obtenir ou créer les paramètres de groupe
       let _0x9e3626 =
         (await groupdb.findOne({
           id: _0x47f7e9.chat,
@@ -1728,56 +1733,72 @@ smd(
         (await groupdb.new({
           id: _0x47f7e9.chat,
         }));
+
+      // Vérification de l'entrée utilisateur
       let _0x19e598 = _0x4bf96c ? _0x4bf96c.toLowerCase().trim() : "";
-      if (
-        _0x19e598.startsWith("on") ||
-        _0x19e598.startsWith("act") ||
-        _0x19e598.startsWith("enable")
-      ) {
-        if (_0x9e3626.pdm == "true") {
+      
+      if (_0x19e598) {
+        // Activation des alertes
+        if (
+          _0x19e598.startsWith("on") ||
+          _0x19e598.startsWith("act") ||
+          _0x19e598.startsWith("enable")
+        ) {
+          if (_0x9e3626.pdm === "true") {
+            return await _0x47f7e9.send(
+              "*Promote/Demote Alerts Already Enabled In Current Chat!*"
+            );
+          }
+          await groupdb.updateOne(
+            {
+              id: _0x47f7e9.chat,
+            },
+            {
+              pdm: "true",
+            }
+          );
           return await _0x47f7e9.send(
-            "*Promote/Demote Alerts Already Enabled In Current Chat!*"
+            "*Promote/Demote Alerts Enabled Successfully!*"
+          );
+        } 
+        // Désactivation des alertes
+        else if (
+          _0x19e598.startsWith("off") ||
+          _0x19e598.startsWith("deact") ||
+          _0x19e598.startsWith("disable")
+        ) {
+          if (_0x9e3626.pdm === "false") {
+            return await _0x47f7e9.send(
+              "*Promote/Demote Alerts Already Disabled In Current Chat!*"
+            );
+          }
+          await groupdb.updateOne(
+            {
+              id: _0x47f7e9.chat,
+            },
+            {
+              pdm: "false",
+            }
+          );
+          return await _0x47f7e9.send(
+            "*Promote/Demote Alerts Disabled Successfully!*"
+          );
+        } 
+        // Commande malformée
+        else {
+          return await _0x47f7e9.reply(
+            '*Uhh Dear, Please use between "On" And "Off".* \n*_To get And Stop Promote/Demote Alerts_*'
           );
         }
-        await groupdb.updateOne(
-          {
-            id: _0x47f7e9.chat,
-          },
-          {
-            pdm: "true",
-          }
-        );
-        return await _0x47f7e9.send(
-          "*Promote/Demote Alerts Enable Succesfully!*"
-        );
-      } else if (
-        _0x19e598.startsWith("off") ||
-        _0x19e598.startsWith("deact") ||
-        _0x19e598.startsWith("disable")
-      ) {
-        if (_0x9e3626.pdm == "false") {
-          return await _0x47f7e9.send(
-            "*Promote/Demote Alerts Already Disabled In Current Chat!*"
-          );
-        }
-        await groupdb.updateOne(
-          {
-            id: _0x47f7e9.chat,
-          },
-          {
-            pdm: "false",
-          }
-        );
-        return await _0x47f7e9.send(
-          "*Promote/Demote Alerts Disable Succesfully!*"
-        );
       } else {
         return await _0x47f7e9.reply(
-          '*Uhh Dear, Please use between "On" And "Off".* \n*_To get And Stop Promote/Demote Alerts_*'
+          "*Please specify 'on' or 'off' to enable or disable Promote/Demote Alerts.*"
         );
       }
     } catch (_0x2f089d) {
-      _0x47f7e9.error(_0x2f089d + "\n\ncommand: pdm", _0x2f089d);
+      // Gestion des erreurs
+      console.error(_0x2f089d); // Log de l'erreur
+      await _0x47f7e9.reply("An error occurred while processing your request.");
     }
   }
 );
