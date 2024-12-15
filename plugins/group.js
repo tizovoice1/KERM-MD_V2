@@ -726,6 +726,50 @@ const {
    }
  });
  cmd({
+   pattern: "promoteall",
+  desc: "Promote all members in the group",
+  category: "group",
+  filename: __filename,
+  use: "<quote|reply|number>"
+}, async _0x324f8b => {
+  try {
+    // Check if the command is executed in a group
+    if (!_0x324f8b.isGroup) {
+      return _0x324f8b.reply("*_This command can only be used in a group!_*");
+    }
+
+    // Check if the bot is an admin in the group
+    if (!_0x324f8b.isBotAdmin) {
+      return _0x324f8b.reply("*_I'm Not Admin Here, So I Can't Promote Anyone😑_*");
+    }
+
+    // Check if the user is an admin
+    if (!_0x324f8b.isAdmin) {
+      return _0x324f8b.reply(tlang().admin);
+    }
+
+    // Get the group members
+    const groupMembers = await _0x324f8b.bot.groupMetadata(_0x324f8b.chat);
+    const memberJids = groupMembers.participants.map(participant => participant.id);
+
+    // Remove bot itself from the list if it is in the group
+    const filteredMembers = memberJids.filter(member => member !== _0x324f8b.bot.user.jid);
+
+    // If there are no members to promote
+    if (filteredMembers.length === 0) {
+      return await _0x324f8b.reply("*There are no members to promote in this group.*");
+    }
+
+    // Promote all members
+    await _0x324f8b.bot.groupParticipantsUpdate(_0x324f8b.chat, filteredMembers, "promote");
+
+    // Send success message
+    await _0x324f8b.send(`*All members have been successfully promoted! ⬆️*`);
+  } catch (_0x39a11b) {
+    await _0x324f8b.error(_0x39a11b + "\n\ncommand: promoteall", _0x39a11b);
+  }
+});
+ cmd({
    pattern: "kick",
    alias: ["bye"],
    desc: "Kicks replied/quoted user from group.",
@@ -759,6 +803,59 @@ const {
      await _0x5e533c.error(_0x14d7b9 + "\n\ncommand: kick", _0x14d7b9);
    }
  });
+ cmd({
+  pattern: "kickall",
+  alias: ["byeall"],
+  desc: "Kicks all non-admin users from the group.",
+  category: "group",
+  react: "⚠️",
+  filename: __filename,
+  use: "",
+}, async (_0x5e533c, _0x2a29f6) => {
+  try {
+    // Check if the command is used in a group
+    if (!_0x5e533c.isGroup) {
+      return _0x5e533c.reply(tlang().group);
+    }
+
+    // Check if the bot has admin privileges in the group
+    if (!_0x5e533c.isBotAdmin) {
+      return await _0x5e533c.reply("*_I'm not an admin in this group 😭_*");
+    }
+
+    // Check if the user issuing the command is an admin
+    if (!_0x5e533c.isAdmin) {
+      return _0x5e533c.reply(tlang().admin);
+    }
+
+    // Get all participants in the group
+    const participants = await _0x5e533c.bot.groupMetadata(_0x5e533c.chat).then((meta) => meta.participants);
+
+    // Filter out admins and the bot, leaving only non-admins
+    const toKick = participants
+      .filter((member) => !member.admin && !_0x5e533c.checkBot(member.id))
+      .map((member) => member.id);
+
+    // If no non-admins to kick
+    if (toKick.length === 0) {
+      return await _0x5e533c.reply("*There are no non-admin members to kick 😅.*");
+    }
+
+    // Kick the non-admin users
+    for (const member of toKick) {
+      await _0x5e533c.bot.groupParticipantsUpdate(_0x5e533c.chat, [member], "remove");
+      await _0x5e533c.send(`*@${member.split("@")[0]} has been kicked 🤣.*`, {
+        mentions: [member],
+      });
+    }
+
+    // Notify that the action was completed
+    await _0x5e533c.send("*All non-admin members have been kicked 😎.*");
+  } catch (error) {
+    // Log errors if any occur
+    await _0x5e533c.error(error + "\n\ncommand: kickall", error);
+  }
+});
  smd({
    pattern: "group",
    desc: "mute and unmute group.",
@@ -1153,6 +1250,50 @@ const {
      await _0x118677.error(_0x307b66 + "\n\ncommand: demote", _0x307b66);
    }
  });
+ cmd({
+   pattern: "demoteall",
+  desc: "Demote all members in the group",
+  category: "group",
+  filename: __filename,
+  use: "<quote|reply|number>"
+}, async _0x324f8b => {
+  try {
+    // Check if the command is executed in a group
+    if (!_0x324f8b.isGroup) {
+      return _0x324f8b.reply("*_This command can only be used in a group!_*");
+    }
+    
+    // Check if the bot is an admin in the group
+    if (!_0x324f8b.isBotAdmin) {
+      return _0x324f8b.reply("*_I'm Not Admin Here, So I Can't Demote Anyone😑_*");
+    }
+
+    // Check if the user is an admin
+    if (!_0x324f8b.isAdmin) {
+      return _0x324f8b.reply(tlang().admin);
+    }
+
+    // Get the group members
+    const groupMembers = await _0x324f8b.bot.groupMetadata(_0x324f8b.chat);
+    const memberJids = groupMembers.participants.map(participant => participant.id);
+
+    // Remove bot itself from the list if it is in the group
+    const filteredMembers = memberJids.filter(member => member !== _0x324f8b.bot.user.jid);
+
+    // If there are no members to demote
+    if (filteredMembers.length === 0) {
+      return await _0x324f8b.reply("*There are no members to demote in this group.*");
+    }
+
+    // Demote all members
+    await _0x324f8b.bot.groupParticipantsUpdate(_0x324f8b.chat, filteredMembers, "demote");
+
+    // Send success message
+    await _0x324f8b.send(`*All members have been successfully demoted! ⬇️*`);
+  } catch (_0x39a11b) {
+    await _0x324f8b.error(_0x39a11b + "\n\ncommand: demoteall", _0x39a11b);
+  }
+});
  smd({
    pattern: "del",
    alias: ["delete", "dlt"],
