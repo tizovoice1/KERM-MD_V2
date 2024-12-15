@@ -943,13 +943,18 @@ smd(
   },
   async (_0x1e1e67, _0x1036fe) => {
     try {
+      // Check if the command is executed in a group
       if (!_0x1e1e67.isGroup) {
-        return _0x1e1e67.reply(tlang().group);
+        return _0x1e1e67.reply(tlang ? tlang().group : "This command can only be used in a group.");
       }
+
+      // Check if the user is an admin or creator
       if (!_0x1e1e67.isAdmin && !_0x1e1e67.isCreator) {
-        return _0x1e1e67.reply(tlang().admin);
+        return _0x1e1e67.reply(tlang ? tlang().admin : "You must be an admin or creator to use this command.");
       }
-      let _0x2154d6 = _0x1036fe.toLowerCase().trim();
+
+      // Process the input text for the command
+      let _0x2154d6 = (_0x1036fe || "").toLowerCase().trim(); // Ensure _0x1036fe is not undefined
       let _0x558208 =
         (await groupdb.findOne({
           id: _0x1e1e67.chat,
@@ -957,6 +962,8 @@ smd(
         (await groupdb.new({
           id: _0x1e1e67.chat,
         }));
+
+      // Enable the welcome message
       if (_0x2154d6 === "on" || _0x2154d6 === "act" || _0x2154d6 === "enable") {
         if (_0x558208.welcome === "true") {
           return await _0x1e1e67.send(
@@ -973,19 +980,21 @@ smd(
         );
         return await _0x1e1e67.send("*Welcome successfully enabled!!*");
       }
+
+      // If the welcome message is already disabled
       if (_0x558208.welcome !== "true") {
         return await _0x1e1e67.send(
           "*_Welcome *Disabled in this Group!_* \n*_Use on/off to enable/disable welcome_*"
         );
       }
+
+      // If no command is provided or if the user wants to get the current welcome message
       if (!_0x1036fe || _0x2154d6 === "get") {
         return await _0x1e1e67.reply("*Welcome :* " + _0x558208.welcometext);
       }
-      if (
-        _0x2154d6 === "off" ||
-        _0x2154d6 === "deact" ||
-        _0x2154d6 === "disable"
-      ) {
+
+      // Disable the welcome message
+      if (_0x2154d6 === "off" || _0x2154d6 === "deact" || _0x2154d6 === "disable") {
         if (_0x558208.welcome === "false") {
           return await _0x1e1e67.send(
             "*_Welcome already disabled in current group!!_*"
@@ -1001,6 +1010,8 @@ smd(
         );
         return await _0x1e1e67.send("*Welcome message disabled!!*");
       }
+
+      // Update the welcome message text in the database
       await groupdb.updateOne(
         {
           id: _0x1e1e67.chat,
@@ -1010,8 +1021,17 @@ smd(
           welcome: "true",
         }
       );
-      await sendWelcome(_0x1e1e67, _0x1036fe);
+
+      // Send the welcome message (if the sendWelcome function is defined)
+      if (typeof sendWelcome === 'function') {
+        await sendWelcome(_0x1e1e67, _0x1036fe);
+      } else {
+        // If the sendWelcome function is not defined, send a warning message
+        await _0x1e1e67.send("Welcome message has been set, but the `sendWelcome` function is not defined.");
+      }
     } catch (_0x582cfc) {
+      // Error handling
+      console.error(_0x582cfc);
       _0x1e1e67.error(_0x582cfc + "\n\ncommand: setwelcome", _0x582cfc);
     }
   }
@@ -1026,13 +1046,17 @@ smd(
   },
   async (_0x2c1a56, _0x5dedfc) => {
     try {
+      // Check if the command is executed in a group
       if (!_0x2c1a56.isGroup) {
         return _0x2c1a56.reply(tlang().group);
       }
+
+      // Check if the user is an admin or creator
       if (!_0x2c1a56.isAdmin && !_0x2c1a56.isCreator) {
         return _0x2c1a56.reply(tlang().admin);
       }
-      let _0x604587 = _0x5dedfc.toLowerCase().trim();
+
+      let _0x604587 = _0x5dedfc.toLowerCase().trim(); // Clean up and process the input
       let _0xbcf3ee =
         (await groupdb.findOne({
           id: _0x2c1a56.chat,
@@ -1040,6 +1064,8 @@ smd(
         (await groupdb.new({
           id: _0x2c1a56.chat,
         }));
+
+      // Enable goodbye message
       if (_0x604587 === "on" || _0x604587 === "act" || _0x604587 === "enable") {
         if (_0xbcf3ee.goodbye === "true") {
           return await _0x2c1a56.send(
@@ -1056,21 +1082,23 @@ smd(
         );
         return await _0x2c1a56.send("*Goodbye successfully enabled!!*");
       }
+
+      // If goodbye message is already disabled
       if (_0xbcf3ee.goodbye !== "true") {
         return await _0x2c1a56.send(
           "*_Goodbye *Disabled in this Group!_* \n*_Use on/off to enable/disable goodbye_*"
         );
       }
+
+      // Get the current goodbye message
       if (!_0x5dedfc || _0x604587 === "get") {
         return await _0x2c1a56.reply(
           "*Goodbye Message :* " + _0xbcf3ee.goodbyetext
         );
       }
-      if (
-        _0x604587 === "off" ||
-        _0x604587 === "deact" ||
-        _0x604587 === "disable"
-      ) {
+
+      // Disable goodbye message
+      if (_0x604587 === "off" || _0x604587 === "deact" || _0x604587 === "disable") {
         if (_0xbcf3ee.goodbye === "false") {
           return await _0x2c1a56.send(
             "*_Goodbye already disabled in current group!!_*"
@@ -1086,6 +1114,8 @@ smd(
         );
         return await _0x2c1a56.send("*Goodbye message disabled!!*");
       }
+
+      // Set a custom goodbye message
       await groupdb.updateOne(
         {
           id: _0x2c1a56.chat,
@@ -1095,8 +1125,11 @@ smd(
           goodbye: "true",
         }
       );
-      await sendWelcome(_0x2c1a56, _0x5dedfc);
+
+      // Send the goodbye message (Make sure to define a `sendGoodbye` function)
+      await sendGoodbye(_0x2c1a56, _0x5dedfc); // Updated function name to `sendGoodbye`
     } catch (_0x5dd573) {
+      // Error handling
       _0x2c1a56.error(_0x5dd573 + "\n\ncommand: setgoodbye", _0x5dd573);
     }
   }
