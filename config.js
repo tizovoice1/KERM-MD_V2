@@ -46,7 +46,6 @@ global.SESSION_ID =
 module.exports = {
   menu: process.env.MENU || "1",
   HANDLERS: process.env.PREFIX || ".",
-  AUTO_LIKE_STATUS: LIKE_EMOJI || "😻",// put random emoji
   BRANCH: process.env.BRANCH || "main",
   VERSION: process.env.VERSION || "1.0.0",
   caption: process.env.CAPTION || "`BRAND PRODUCT OF ☞⌜ KG TECH⌝☜`",
