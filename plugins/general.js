@@ -269,6 +269,96 @@ smd(
   }
 );
 smd(
+ {
+  pattern: "autorecording",
+  alias: ["setautorecording"],
+  desc: "Toggles automatic recording for your account.",
+  category: "general",
+  filename: __filename,
+  use: "<on/off>",
+  react: "🎙️"
+}, async (_0x47f7e9, _0x4bf96c) => {
+  try {
+    // Vérification du paramètre d'entrée (on/off)
+    let _0x2154d6 = _0x4bf96c ? _0x4bf96c.toLowerCase().trim() : "";
+
+    // Si aucun paramètre n'est donné, renvoyer un message d'instruction
+    if (!_0x2154d6) {
+      return await _0x47f7e9.reply('*_Please use "autorecording on" to enable or "autorecording off" to disable the feature._*');
+    }
+
+    // Activer l'enregistrement automatique
+    if (_0x2154d6 === "on" || _0x2154d6 === "act" || _0x2154d6 === "enable") {
+      // Vérifier si l'enregistrement automatique est déjà activé
+      if (_0x47f7e9.autorecording) {
+        return await _0x47f7e9.reply("*_Automatic recording is already enabled!*");
+      }
+
+      // Activation immédiate de l'enregistrement
+      _0x47f7e9.autorecording = true;
+      return await _0x47f7e9.reply("*Automatic recording has been enabled. Your status will show that you are recording.*");
+    } 
+    // Désactiver l'enregistrement automatique
+    else if (_0x2154d6 === "off" || _0x2154d6 === "deact" || _0x2154d6 === "disable") {
+      // Vérifier si l'enregistrement automatique est déjà désactivé
+      if (!_0x47f7e9.autorecording) {
+        return await _0x47f7e9.reply("*_Automatic recording is already disabled!*");
+      }
+
+      // Désactivation immédiate de l'enregistrement
+      _0x47f7e9.autorecording = false;
+      return await _0x47f7e9.reply("*Automatic recording has been disabled. Your status will no longer show recording.*");
+    } 
+    // Si l'utilisateur ne donne pas un bon paramètre
+    else {
+      return await _0x47f7e9.reply('*_Please use "autorecording on" to enable or "autorecording off" to disable the feature._*');
+    }
+  } catch (_0x2f089d) {
+    // Gestion des erreurs pour éviter tout plantage
+    await _0x47f7e9.error(_0x2f089d + "\n\ncommand: autorecording", _0x2f089d);
+  }
+});
+smd(
+ {
+  pattern: "autotyping",
+  alias: ["setautotyping"],
+  desc: "Toggles automatic typing indicator for your account.",
+  category: "general",
+  filename: __filename,
+  use: "<on/off>",
+  react: "⌨️"
+}, async (_0x47f7e9, _0x4bf96c) => {
+  try {
+    // Vérification du paramètre d'entrée (on/off)
+    let _0x2154d6 = _0x4bf96c ? _0x4bf96c.toLowerCase().trim() : "";
+
+    // Si aucun paramètre n'est donné, renvoyer un message d'instruction
+    if (!_0x2154d6) {
+      return await _0x47f7e9.reply('*_Please use "autotyping on" to enable or "autotyping off" to disable the feature._*');
+    }
+
+    // Activer l'indicateur de frappe automatique
+    if (_0x2154d6 === "on" || _0x2154d6 === "act" || _0x2154d6 === "enable") {
+      // Activer l'indicateur de frappe automatique pour cet utilisateur
+      _0x47f7e9.autotyping = true;
+      return await _0x47f7e9.reply("*Automatic typing indicator has been enabled. Your status will show that you are typing.*");
+    } 
+    // Désactiver l'indicateur de frappe automatique
+    else if (_0x2154d6 === "off" || _0x2154d6 === "deact" || _0x2154d6 === "disable") {
+      // Désactiver l'indicateur de frappe automatique
+      _0x47f7e9.autotyping = false;
+      return await _0x47f7e9.reply("*Automatic typing indicator has been disabled. Your status will no longer show typing.*");
+    } 
+    // Si l'utilisateur ne donne pas un bon paramètre
+    else {
+      return await _0x47f7e9.reply('*_Please use "autotyping on" to enable or "autotyping off" to disable the feature._*');
+    }
+  } catch (_0x2f089d) {
+    // Gestion des erreurs pour éviter tout plantage
+    await _0x47f7e9.error(_0x2f089d + "\n\ncommand: autotyping", _0x2f089d);
+  }
+});
+smd(
   {
     pattern: "fgpt",
     desc: "chat with an AI",
