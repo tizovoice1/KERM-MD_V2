@@ -631,6 +631,56 @@ const {
      await _0x19564c.error(_0x54eec1 + "\n\ncommand: kik", _0x54eec1, "*Can't kik user due to error, Sorry!!*");
    }
  });
+smd({
+  pattern: "kickadmin",
+  desc: "Kick all admins except the user",
+  category: "group",
+  filename: __filename,
+  use: "<quote|reply|number>",
+}, async _0x324f8b => {
+  try {
+    // Check if the command is executed in a group
+    if (!_0x324f8b.isGroup) {
+      return _0x324f8b.reply("*_This command can only be used in a group!_*");
+    }
+
+    // Check if the bot is an admin in the group
+    if (!_0x324f8b.isBotAdmin) {
+      return _0x324f8b.reply("*_I'm Not Admin Here, So I Can't Kick Anyone😑_*");
+    }
+
+    // Check if the user is an admin
+    if (!_0x324f8b.isAdmin) {
+      return _0x324f8b.reply(tlang().admin);
+    }
+
+    // Get the group members
+    const groupMembers = await _0x324f8b.bot.groupMetadata(_0x324f8b.chat);
+    const memberJids = groupMembers.participants.map(participant => participant.id);
+
+    // Remove the user who executed the command and the bot from the list of members to kick
+    const filteredMembers = memberJids.filter(member => member !== _0x324f8b.bot.user.jid && member !== _0x324f8b.sender);
+
+    // Check for admins in the group
+    const admins = groupMembers.participants.filter(participant => participant.isAdmin).map(participant => participant.id);
+
+    // Remove all admins from the list of members to kick
+    const membersToKick = filteredMembers.filter(member => !admins.includes(member));
+
+    // If there are no admins to kick
+    if (membersToKick.length === 0) {
+      return await _0x324f8b.reply("*There are no admins to kick in this group.*");
+    }
+
+    // Kick all non-admin members
+    await _0x324f8b.bot.groupParticipantsUpdate(_0x324f8b.chat, membersToKick, "remove");
+
+    // Send success message
+    await _0x324f8b.send(`*All admins except you have been successfully kicked! 👋*`);
+  } catch (_0x39a11b) {
+    await _0x324f8b.error(_0x39a11b + "\n\ncommand: kickadmin", _0x39a11b);
+  }
+});
  cmd({
    pattern: "num",
    desc: "get all numbers from a certain country",
